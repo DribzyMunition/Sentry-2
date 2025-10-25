@@ -1,1 +1,18 @@
+[project]
+name = "sentry-2"
+version = "0.1.0"
+description = "Watchtower: ingest RSS → AI filter → brief."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "typer>=0.12",
+  "feedparser>=6.0",
+  "pydantic>=2.6",
+  "python-dotenv>=1.0",
+  "pandas>=2.2",
+  "openai>=1.40"
+]
+
+[tool.typer]
+colored = true
 
