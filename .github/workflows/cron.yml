@@ -1,7 +1,7 @@
 name: sentry-brief
 on:
   schedule:
-    - cron: "0 12 * * *"   # Daily 12:00 UTC (change to 0 1 * * * for 12:00 Sydney)
+    - cron: "0 1 * * *"   # Daily 12:00 UTC (change to 0 1 * * * for 12:00 Sydney)
   workflow_dispatch: {}
 
 # Needed to push docs/ for GitHub Pages
