@@ -21,10 +21,4 @@ def build_brief() -> str:
     out.write_text("\n".join(lines), encoding="utf-8")
     return str(out)
 
-      - run: mkdir -p docs && cp reports/brief.md docs/index.md
-      - run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "github-actions"
-          git add docs/index.md
-          git commit -m "update brief" || echo "no changes"
-          git push
+
