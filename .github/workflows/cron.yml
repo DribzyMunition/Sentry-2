@@ -1,28 +1,55 @@
 name: sentry-brief
 on:
   schedule:
-    - cron: "0 12 * * *"   # Run every day at 12:00 UTC
+    - cron: "0 12 * * *"   # Daily 12:00 UTC (change to 0 1 * * * for 12:00 Sydney)
   workflow_dispatch: {}
+
+# Needed to push docs/ for GitHub Pages
+permissions:
+  contents: write
 
 jobs:
   run-sentry:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install -e .
-      - run: cp .env.example .env
-      - run: python cli.py ingest
-      - run: python cli.py filter
-      - run: python cli.py brief
+
+      # Create real .env from secrets + feeds in .env.example
+      - name: Setup .env
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+          echo "SENTRY_RSS_FEEDS=$(grep '^SENTRY_RSS_FEEDS=' .env.example | cut -d '=' -f2-)" >> .env
+
+      - name: Install
+        run: python -m pip install -e .
+
+      - name: Ingest
+        run: python cli.py ingest
+
+      - name: AI Filter
+        run: python cli.py filter
+
+      - name: Build Brief
+        run: python cli.py brief
+
+      # Optional: keep artifact for download
       - uses: actions/upload-artifact@v4
         with:
           name: sentry-brief
           path: reports/brief.md
-      - name: Setup .env
-        run: |
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
-          echo "SENTRY_RSS_FEEDS=$(cat .env.example | grep SENTRY_RSS_FEEDS | cut -d '=' -f2-)" >> .env
 
+      # Publish to GitHub Pages via docs/index.md
+      - name: Publish to Pages (docs/)
+        run: |
+          mkdir -p docs
+          cp reports/brief.md docs/index.md
+          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions"
+          git add docs/index.md
+          git commit -m "update brief" || echo "no changes"
+          git pull --rebase
+          git push
