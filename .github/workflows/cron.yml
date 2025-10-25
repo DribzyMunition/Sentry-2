@@ -21,4 +21,8 @@ jobs:
         with:
           name: sentry-brief
           path: reports/brief.md
+      - name: Setup .env
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+          echo "SENTRY_RSS_FEEDS=$(cat .env.example | grep SENTRY_RSS_FEEDS | cut -d '=' -f2-)" >> .env
 
